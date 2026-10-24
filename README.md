@@ -1,27 +1,54 @@
-# Medallion Warehouse EDA Analytics: Gold Layer Optimization
+# Sales Data Exploration with SQL
+**SQL Server · Gold-layer analysis · Business metrics and rankings**
 
-## 📌 Project Overview
-This project contains a comprehensive Exploratory Data Analysis (EDA) sequence executed on a multi-tier **Medallion Star Schema Data Warehouse (`Bronze` -> `Silver` -> `Gold`)**. The primary focus is validating structural constraints, tracking business measures, and evaluating performance trends inside the presentation layer (`Gold`).
+A set of T-SQL exploration scripts for a sales warehouse. The queries inspect available data, calculate summary measures, compare customer and product groups, and rank sales contributors.
 
-## 🏢 Business Architecture Layer Spec
-The analysis profiles transactions across three highly linked components:
-*   **`gold.fact_sales`**: Central transaction kernel keeping track of revenues, quantities, order numbers, and itemized configurations.
-*   **`gold.dim_customers`**: Master demographic hub keeping track of geographic footprints, age brackets, and customer lifecycles.
-*   **`gold.dim_products`**: Product details schema containing categorical groupings and unit tracking data.
+[Companion warehouse](https://github.com/sharankumarsrathod12345/sql-data-warehouse-project) · [Browse scripts](medallion-warehouse-eda-analytics/scripts/)
 
-## 🚀 Key Business Insights Extracted
-1.  **Unified KPI Dashboard**: Designed and deployed a unified reporting query combining multiple key metrics (Sales volume, customer conversion reach, unique counts) into a single row matrix using optimized stack logic (`UNION ALL`).
-2.  **Structural Demographics**: Mapped geographic revenue profiles across global low-cardinality indicators (`country`, `gender`) alongside high-cardinality profiles (`customer_key`).
-3.  **Performance Cohorts**: Extracted structural outliers including top 5 products by revenue generated, bottom 5 assets by sales underperformance, and top 10 high-value customer accounts.
+## Questions explored
 
-## 🛠️ Code Base Architecture
-The codebase is structured logically to mirror an end-to-end analytical discovery workflow:
-*   `scripts/01_database_discovery.sql`: System metadata evaluation, categorical profiling, and operational date boundaries.
-*   `scripts/02_executive_metrics.sql`: Baseline metric calculations tracking absolute revenue, quantity, and distinct activity volumes.
-*   `scripts/03_kpi_matrix_ledger.sql`: A unified, high-performance executive reporting matrix engineered using optimized vertical aggregation stacking (`UNION ALL`).
-*   `scripts/04_performance_cohorts.sql`: Deep-dive trend analysis profiling segment magnitudes and advanced performance window rankings.
+- What dates and categories are represented?
+- What are total sales, quantity, and distinct orders?
+- How many customers exist, and how many have placed orders?
+- How does sales activity vary by category, customer, and country?
+- Which products and customers rank highest or lowest on the selected measure?
 
-## ⚙️ Technical Skills Highlighted
-*   **Advanced Aggregations**: Tie-safe dense window rank implementations (`DENSE_RANK() OVER (...)`).
-*   **Query Performance Optimization**: Replaced slow sub-select loops with explicit relational operators (`INNER JOIN`, `LEFT JOIN`).
-*   **Safe Data Conversions**: Defensive code design utilizing structural fallbacks (`COALESCE`, `CONCAT`) and fixed historical project points to handle dates.
+## Script guide
+
+| Order | Script | Purpose |
+| --- | --- | --- |
+| 1 | [Database discovery](medallion-warehouse-eda-analytics/scripts/01_database_discovery.sql) | Schema metadata, categories, date boundaries, and customer birth dates |
+| 2 | [Executive metrics](medallion-warehouse-eda-analytics/scripts/02_executive_metrics.sql) | Sales, quantity, prices, orders, products, and customers |
+| 3 | [KPI summary](medallion-warehouse-eda-analytics/scripts/03_kpi_matrix_ledger.sql) | Combine named measures into rows using UNION ALL |
+| 4 | [Segment comparisons and rankings](medallion-warehouse-eda-analytics/scripts/04_performance_cohorts.sql) | Aggregations, joins, TOP N, and RANK examples |
+
+## Setup and compatibility
+
+Load the companion warehouse, select its database in SSMS, and review the scripts in sequence.
+
+**The current exploration scripts need column-name alignment with the companion warehouse before all queries will run:**
+
+| Exploration reference | Companion Gold column |
+| --- | --- |
+| `sub_category` | `subcategory` |
+| `birth_date` | `birthdate` |
+| `product_cost` | `cost` |
+
+The discovery script also contains the metadata lookup typo `crm_prd_ifo`; the source table is `crm_prd_info`.
+
+## Metric interpretation
+
+- `COUNT(DISTINCT order_number)` counts orders, not customers or first purchases.
+- `COUNT(DISTINCT customer_key)` in sales counts customers represented in sales.
+- `AVG(price)` is a row-level average; it is not a quantity-weighted realized selling price.
+- `DATEDIFF(YEAR, birthdate, GETDATE())` counts year boundaries and can overstate age before a birthday.
+- `TOP N` without a unique secondary sort may choose tied records inconsistently. The ranking example uses `RANK()`, not `DENSE_RANK()`.
+- Rankings starting from sales exclude products with no sales records.
+
+## Deliverable and next steps
+
+The deliverable is an inspectable SQL exploration sequence. Query outputs and measured business findings are not committed, and no performance benchmark is included.
+
+Next steps are to align schema references, correct explanatory comments, define tie handling and metric grain, and publish reconciled results with business interpretations.
+
+**Author:** Sharan Kumar Rathod
