@@ -1,54 +1,53 @@
 # Sales Data Exploration with SQL
-**SQL Server · Gold-layer analysis · Business metrics and rankings**
+**SQL Server · Sales reporting · Data validation · Monthly comparisons**
 
-A set of T-SQL exploration scripts for a sales warehouse. The queries inspect available data, calculate summary measures, compare customer and product groups, and rank sales contributors.
+A portfolio project that investigates sales, customers, and products using the Gold views of a companion SQL Server warehouse. The emphasis is on explicit metric definitions, trustworthy joins, and reproducible analysis.
 
-[Companion warehouse](https://github.com/sharankumarsrathod12345/sql-data-warehouse-project) · [Browse scripts](medallion-warehouse-eda-analytics/scripts/)
+[Companion warehouse](https://github.com/sharankumarsrathod12345/sql-data-warehouse-project) · [Metric definitions and validation guide](docs/analysis-guide.md)
 
-## Questions explored
+## Business questions
 
-- What dates and categories are represented?
-- What are total sales, quantity, and distinct orders?
-- How many customers exist, and how many have placed orders?
-- How does sales activity vary by category, customer, and country?
-- Which products and customers rank highest or lowest on the selected measure?
+- How much sales value and quantity are represented in the dataset?
+- How many distinct orders and purchasing customers are recorded?
+- Which categories, countries, products, and customers contribute sales?
+- Which current products have no recorded sales?
+- How do monthly sales and average order value change?
 
-## Script guide
+## Run order
+
+Load the companion warehouse and select its database in SSMS. These scripts are read-only; they do not initialize or reload the warehouse.
 
 | Order | Script | Purpose |
 | --- | --- | --- |
-| 1 | [Database discovery](medallion-warehouse-eda-analytics/scripts/01_database_discovery.sql) | Schema metadata, categories, date boundaries, and customer birth dates |
-| 2 | [Executive metrics](medallion-warehouse-eda-analytics/scripts/02_executive_metrics.sql) | Sales, quantity, prices, orders, products, and customers |
-| 3 | [KPI summary](medallion-warehouse-eda-analytics/scripts/03_kpi_matrix_ledger.sql) | Combine named measures into rows using UNION ALL |
-| 4 | [Segment comparisons and rankings](medallion-warehouse-eda-analytics/scripts/04_performance_cohorts.sql) | Aggregations, joins, TOP N, and RANK examples |
+| 0 | [Validation checks](medallion-warehouse-eda-analytics/scripts/00_validation_checks.sql) | Missing fields, dimension keys, unmatched sales, and join reconciliation |
+| 1 | [Database discovery](medallion-warehouse-eda-analytics/scripts/01_database_discovery.sql) | Schema, dimensions, and coverage |
+| 2 | [Executive metrics](medallion-warehouse-eda-analytics/scripts/02_executive_metrics.sql) | Defined metrics at sales-row, order, and customer grain |
+| 3 | [KPI summary](medallion-warehouse-eda-analytics/scripts/03_kpi_matrix_ledger.sql) | Ordered metric table with units |
+| 4 | [Segment comparisons](medallion-warehouse-eda-analytics/scripts/04_performance_cohorts.sql) | Segment totals, rankings, and unsold products |
+| 5 | [Monthly sales](medallion-warehouse-eda-analytics/scripts/05_monthly_sales_analysis.sql) | Monthly sales, orders, customers, units, AOV, and prior-month comparison |
 
-## Setup and compatibility
+Stop to investigate validation exceptions before publishing analytical conclusions. Missing prior months remain NULL; the script does not assume they represent zero sales.
 
-Load the companion warehouse, select its database in SSMS, and review the scripts in sequence.
+## Analytical choices
 
-**The current exploration scripts need column-name alignment with the companion warehouse before all queries will run:**
+- Orders are distinct order numbers; customers are distinct customer keys.
+- Product rankings group by key so identical names do not merge products.
+- The top-rank query includes ties; fixed-size lists use keys to resolve ties.
+- Mean line unit price and realized sales per unit are separate measures.
+- Ratios with zero denominators return NULL.
+- Current product cost is not treated as historical cost of goods sold.
+- The file named `04_performance_cohorts.sql` contains segment comparisons, not retention cohort analysis.
 
-| Exploration reference | Companion Gold column |
-| --- | --- |
-| `sub_category` | `subcategory` |
-| `birth_date` | `birthdate` |
-| `product_cost` | `cost` |
+## Verification status
 
-The discovery script also contains the metadata lookup typo `crm_prd_ifo`; the source table is `crm_prd_info`.
+Schema references were compared with the companion Gold view definitions. A portable fixture test covers order grain, price weighting, duplicate product names, unsold products, missing months, join inflation, and empty-population ratios.
 
-## Metric interpretation
+Run `python tests/check_logic.py` from the repository root. It translates selected T-SQL syntax to SQLite for logic checks; it does **not** validate native SQL Server execution, SQL Server decimal precision, or actual source results.
 
-- `COUNT(DISTINCT order_number)` counts orders, not customers or first purchases.
-- `COUNT(DISTINCT customer_key)` in sales counts customers represented in sales.
-- `AVG(price)` is a row-level average; it is not a quantity-weighted realized selling price.
-- `DATEDIFF(YEAR, birthdate, GETDATE())` counts year boundaries and can overstate age before a birthday.
-- `TOP N` without a unique secondary sort may choose tied records inconsistently. The ranking example uses `RANK()`, not `DENSE_RANK()`.
-- Rankings starting from sales exclude products with no sales records.
+Native SQL Server execution and dataset-derived findings remain pending. See [the guide](docs/analysis-guide.md) for the evidence to capture.
 
-## Deliverable and next steps
+## Scope
 
-The deliverable is an inspectable SQL exploration sequence. Query outputs and measured business findings are not committed, and no performance benchmark is included.
-
-Next steps are to align schema references, correct explanatory comments, define tie handling and metric grain, and publish reconciled results with business interpretations.
+This is a portfolio analysis of the available warehouse snapshot, not a production deployment or proof of client impact. No business figures or performance benchmarks are asserted without saved results.
 
 **Author:** Sharan Kumar Rathod

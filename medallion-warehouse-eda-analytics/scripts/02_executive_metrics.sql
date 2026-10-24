@@ -1,52 +1,32 @@
--- ========================
---  #4 MEASURES EXPLORATION: CALCULATE THE KEY METRIC OF THE BUSINESS (BIG NUMBERS). HIGHEST LEVEL OF AGGREGATION TO | LOWEST LEVEL OF DETAILS.
--- ========================
+/*
+Purpose: define baseline sales metrics at their correct grain.
+Population: all rows in the current Gold views; no date filters.
+Run 00_validation_checks.sql first and investigate exceptions.
+Missing amounts are not silently replaced with zero.
+*/
+SELECT
+    COUNT_BIG(*) AS sales_rows,
+    SUM(CAST(sales_amount AS decimal(19, 4))) AS total_sales,
+    SUM(CAST(quantity AS bigint)) AS units_sold,
+    COUNT(DISTINCT order_number) AS distinct_orders,
+    COUNT(DISTINCT customer_key) AS purchasing_customers,
+    AVG(CAST(price AS decimal(19, 4))) AS mean_line_unit_price,
+    SUM(CAST(sales_amount AS decimal(19, 4)))
+        / NULLIF(SUM(CAST(quantity AS decimal(19, 4))), 0) AS realized_sales_per_unit,
+    SUM(CAST(sales_amount AS decimal(19, 4)))
+        / NULLIF(CAST(COUNT(DISTINCT order_number) AS decimal(19, 4)), 0) AS average_order_value
+FROM gold.fact_sales;
 
--- FORMULA: COUNT[MEASURES], SUM[MEASURES], AVG[MEASURES] LIKE SUM(SALES), AVG(PRICE), SUM(QUANTITY)
+-- Dimension populations differ from customers/products represented in sales.
+SELECT COUNT_BIG(*) AS customer_dimension_rows,
+       COUNT(DISTINCT customer_key) AS distinct_customer_keys
+FROM gold.dim_customers;
 
--- =============================================================================================================================
--- #1 TASK:
--- =============================================================================================================================
+SELECT COUNT_BIG(*) AS product_dimension_rows,
+       COUNT(DISTINCT product_key) AS distinct_product_keys
+FROM gold.dim_products;
 
--- FIND THE TOTAL SALES
-SELECT 
-SUM(sales_amount) AS TOTAL_SALES
-FROM gold.fact_sales
-
--- FIND HOW MANY ITEMS ARE SOLD
-SELECT 
-SUM(quantity) AS ITEMS_SOLD
-FROM gold.fact_sales
-
--- FIND THE AVERAGE SELLING PRICE
-SELECT 
-AVG(price) AS AVG_SELLING_PRICE
-FROM gold.fact_sales
-
--- FIND THE TOTAL NUMBER OF ORDERS
-SELECT 
-COUNT(order_number) AS TOTAL_NR_ORDERS --> ONE PERSON HAS GIVEN SO MANY ORDERS THEN IT COUNTS ALL OF THEM.
-FROM gold.fact_sales
-SELECT 
-COUNT(DISTINCT order_number) AS TOTAL_NR_ORDER_DISTINCT --> ONE PERSON HAS GIVEN SO MANY ORDERS BUT IT COUNTS ONLY PERSON AND HIS ONLY ONE FIRST ORDER FROM ALL OF THEM TO AVOID REPETITION OF PERSON ON EVERY ORDER.
-FROM gold.fact_sales
-
--- FIND THE TOTAL NUMBER OF PRODUCTS
-SELECT 
-COUNT(product_name) AS TOTAL_NR_PRODUCTS
-FROM gold.dim_products
-SELECT 
-COUNT(DISTINCT product_name) AS TOTAL_NR_PRODUCTS
-FROM gold.dim_products
-
--- FIND THE TOTAL NUMBER OF CUSTOMERS
-SELECT 
-COUNT(*) AS TOTAL_NR_CUSTOMERS
-FROM gold.dim_customers
-
--- FIND THE TOTAL NUMBER OF CUSTOMERS THAT HAS PLACED ORDERS
-SELECT 
-COUNT(customer_key) AS TOTAL_NR_CUSTOMERS_ORDERED,--> REPETITON
-COUNT(DISTINCT customer_key) AS TOTAL_NR_CUSTOMERS_ORDERED --> EXACT: BEST AND RIGHT
-FROM gold.fact_sales
-
+-- A customer can place several distinct orders.
+-- COUNT(order_number) counts non-null sales rows, not distinct orders.
+-- AVG(price) weights each row equally; sales / quantity weights sold units.
+-- NULLIF returns NULL for an undefined ratio instead of a divide-by-zero error.
