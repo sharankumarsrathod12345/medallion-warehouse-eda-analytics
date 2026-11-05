@@ -5,6 +5,8 @@ A portfolio project that investigates sales, customers, and products using the G
 
 [Companion warehouse](https://github.com/sharankumarsrathod12345/sql-data-warehouse-project) · [Metric definitions and validation guide](docs/analysis-guide.md)
 
+**Start with the [six-section EDA walkthrough](medallion-warehouse-eda-analytics/scripts/EDA.sql).** Run the validation checks first, then use the walkthrough in SSMS to explore the warehouse layers, dimensions, date coverage, measures, segment comparisons, and rankings. Customer ages use the latest recorded order date. The numbered scripts below also cover unsold products and monthly comparisons.
+
 ## Business questions
 
 - How much sales value and quantity are represented in the dataset?
