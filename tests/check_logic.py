@@ -7,7 +7,7 @@ c=sqlite3.connect(':memory:')
 c.execute("ATTACH DATABASE ':memory:' AS gold")
 c.executescript('''
 CREATE TABLE gold.dim_customers(customer_key INT, country TEXT, gender TEXT);
-CREATE TABLE gold.dim_products(product_key INT, product_name TEXT, category TEXT, cost REAL);
+CREATE TABLE gold.dim_products(product_key INT, product_name TEXT, category TEXT, product_cost REAL);
 CREATE TABLE gold.fact_sales(order_number TEXT,customer_key INT,product_key INT,order_date TEXT,shipping_date TEXT,sales_amount REAL,quantity INT,price REAL);
 INSERT INTO gold.dim_customers VALUES(1,'India','M'),(2,'USA',NULL);
 INSERT INTO gold.dim_products VALUES(1,'Same name','A',5),(2,'Same name','A',10),(3,'Unsold','B',20);
