@@ -6,6 +6,12 @@ This portfolio case study explores a historical retail practice dataset. The fig
 
 [Read my original SQL](EDA.sql) · [View the portfolio case study](https://sharankumarsrathod12345.github.io/projects/sales-eda/) · [Explore the companion warehouse](https://github.com/sharankumarsrathod12345/sql-data-warehouse-project)
 
+## Download the dataset
+
+[Download monthly category sales (CSV)](https://raw.githubusercontent.com/sharankumarsrathod12345/medallion-warehouse-eda-analytics/main/datasets/gold_monthly_category_sales.csv) · [Preview on GitHub](datasets/gold_monthly_category_sales.csv)
+
+This public extract has one row per observed order month and product category, with sales-line count, units sold and recorded sales amount. Sum the three measures across rows to reproduce the full snapshot. The `Undated` rows account for 19 sales lines and 4,992 in recorded sales. The first and last calendar months have partial coverage. Use the companion warehouse to run queries that need individual transactions or customer keys.
+
 ## Findings for a retail manager
 
 | Business question | Evidence from the exports | How to use it |
