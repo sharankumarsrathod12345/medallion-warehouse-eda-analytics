@@ -18,9 +18,9 @@ SELECT DISTINCT country
 FROM gold.dim_customers
 ORDER BY country;
 
-SELECT product_key, product_name, category, subcategory
+SELECT product_key, product_name, category, sub_category
 FROM gold.dim_products
-ORDER BY category, subcategory, product_key;
+ORDER BY category, sub_category, product_key;
 
 -- 3. Inspect sales coverage and customer age at the last observed order date.
 -- Year boundaries are not the same as complete years of observations.
@@ -34,10 +34,10 @@ FROM gold.fact_sales;
 ;WITH snapshot AS (
     SELECT MAX(order_date) AS as_of_date FROM gold.fact_sales
 ), ages AS (
-    SELECT d.birthdate, s.as_of_date,
-           CASE WHEN d.birthdate <= s.as_of_date THEN
-               DATEDIFF(year, d.birthdate, s.as_of_date)
-               - CASE WHEN DATEADD(year, DATEDIFF(year, d.birthdate, s.as_of_date), d.birthdate)
+    SELECT d.birth_date, s.as_of_date,
+           CASE WHEN d.birth_date <= s.as_of_date THEN
+               DATEDIFF(year, d.birth_date, s.as_of_date)
+               - CASE WHEN DATEADD(year, DATEDIFF(year, d.birth_date, s.as_of_date), d.birth_date)
                            > s.as_of_date THEN 1 ELSE 0 END
            END AS age_years
     FROM gold.dim_customers AS d CROSS JOIN snapshot AS s
@@ -119,7 +119,7 @@ GROUP BY gender
 ORDER BY customers DESC, gender;
 
 SELECT category, COUNT_BIG(*) AS products,
-       AVG(CAST(cost AS decimal(19, 4))) AS mean_current_product_cost
+       AVG(CAST(product_cost AS decimal(19, 4))) AS mean_current_product_cost
 FROM gold.dim_products
 GROUP BY category
 ORDER BY products DESC, category;
