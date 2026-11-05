@@ -58,4 +58,4 @@ Example structure only: “During [period], [segment] represented [verified shar
 
 The portable SQLite fixture checks analytical logic after a small syntax translation. It uses invented test records, not business data. SQL Server decimal semantics, native compilation, workbook calculations, and actual warehouse output are outside that test.
 
-Native SQL Server validation: **pending**. Business findings: **pending exported results**.
+The [snapshot reconciliation](../README.md#verification-status) records results checked against the three supplied Gold exports. Native SQL Server validation remains pending.
