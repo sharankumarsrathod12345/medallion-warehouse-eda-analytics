@@ -12,9 +12,9 @@ SELECT DISTINCT country
 FROM gold.dim_customers
 ORDER BY country;
 
-SELECT product_key, product_name, category, subcategory
+SELECT product_key, product_name, category, sub_category
 FROM gold.dim_products
-ORDER BY category, subcategory, product_key;
+ORDER BY category, sub_category, product_key;
 
 -- Year boundaries are not the same as complete years of observations.
 SELECT
@@ -27,7 +27,7 @@ FROM gold.fact_sales;
 -- Use a reproducible dataset boundary instead of today's date.
 -- Birth-date bounds are reported directly: DATEDIFF(YEAR) alone is not exact age.
 SELECT
-    MIN(birthdate) AS earliest_birthdate,
-    MAX(birthdate) AS latest_birthdate,
-    SUM(CASE WHEN birthdate IS NULL THEN 1 ELSE 0 END) AS missing_birthdates
+    MIN(birth_date) AS earliest_birthdate,
+    MAX(birth_date) AS latest_birthdate,
+    SUM(CASE WHEN birth_date IS NULL THEN 1 ELSE 0 END) AS missing_birthdates
 FROM gold.dim_customers;
