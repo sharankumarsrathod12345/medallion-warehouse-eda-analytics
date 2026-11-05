@@ -16,7 +16,7 @@ GROUP BY gender
 ORDER BY customers DESC, gender;
 
 SELECT category, COUNT_BIG(*) AS products,
-       AVG(CAST(cost AS decimal(19, 4))) AS mean_current_product_cost
+       AVG(CAST(product_cost AS decimal(19, 4))) AS mean_current_product_cost
 FROM gold.dim_products
 GROUP BY category
 ORDER BY products DESC, category;
