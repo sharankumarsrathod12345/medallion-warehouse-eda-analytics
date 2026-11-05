@@ -1,3 +1,0 @@
-# These SQL scripts target Microsoft SQL Server (Transact-SQL).
-*.sql linguist-language=TSQL linguist-detectable=true
-# Supporting Python tests retain their real language classification.
