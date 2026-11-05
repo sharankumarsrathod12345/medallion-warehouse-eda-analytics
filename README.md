@@ -4,13 +4,22 @@ Bikes generated **96.46% of recorded sales value**, while accessories accounted 
 
 This portfolio case study explores a historical retail practice dataset. The figures below were calculated from the three Gold view exports produced by my SQL Server warehouse.
 
-[Read my original SQL](EDA.sql) · [View the portfolio case study](https://sharankumarsrathod12345.github.io/projects/sales-eda/) · [Explore the companion warehouse](https://github.com/sharankumarsrathod12345/sql-data-warehouse-project)
+[Read my original SQL](script/EDA.sql) · [View the portfolio case study](https://sharankumarsrathod12345.github.io/projects/sales-eda/) · [Explore the companion warehouse](https://github.com/sharankumarsrathod12345/sql-data-warehouse-project)
 
-## Download the dataset
+## Six steps of exploratory data analysis
 
-[Download monthly category sales (CSV)](https://raw.githubusercontent.com/sharankumarsrathod12345/medallion-warehouse-eda-analytics/main/datasets/gold_monthly_category_sales.csv) · [Preview on GitHub](datasets/gold_monthly_category_sales.csv)
+| Step | Question | What the SQL returns |
+| --- | --- | --- |
+| 1. [Database exploration](script/EDA.sql#L4) | Where does the reporting data live? | Table, view and column metadata across the Bronze, Silver and Gold schemas. |
+| 2. [Dimensions exploration](script/EDA.sql#L104) | How can we group customers and products? | Distinct customer countries and combinations of product category, subcategory and product name. |
+| 3. [Date exploration](script/EDA.sql#L120) | What period do the orders cover? | First and last order dates, calendar-year boundaries crossed, and approximate ages from the earliest and latest customer birth dates. |
+| 4. [Measures exploration](script/EDA.sql#L139) | How much was sold, across how many orders and customers? | Sales amount, units, average line price, sales-row and distinct-order counts, catalog and customer counts, and a KPI summary. |
+| 5. [Magnitude analysis](script/EDA.sql#L225) | How do sales and purchasing activity vary across groups? | Sales by category and customer, average product cost by category, units by country, and customer counts by country and gender. |
+| 6. [Ranking analysis](script/EDA.sql#L300) | Which products and customers lead or trail on the selected measure? | Top and bottom five product names by sales, top ten customers by sales, and three purchasing customers with the fewest distinct orders. Ties can expand each list. |
 
-This public extract has one row per observed order month and product category, with sales-line count, units sold and recorded sales amount. Sum the three measures across rows to reproduce the full snapshot. The `Undated` rows account for 19 sales lines and 4,992 in recorded sales. The first and last calendar months have partial coverage. Use the companion warehouse to run queries that need individual transactions or customer keys.
+## Warehouse data
+
+The [datasets folder](datasets/) contains the three Gold exports. Each row in `fact_sales.csv` is a sales record. Join it to `dim_products.csv` on `product_key` for product and category analysis, and to `dim_customers.csv` on `customer_key` for customer and country analysis.
 
 ## Findings for a retail manager
 
@@ -28,7 +37,7 @@ Recorded order dates run from **29 December 2010 to 28 January 2014**. Nineteen 
 
 ## Reading the original script
 
-Open [EDA.sql](EDA.sql) in SSMS, select the database containing `gold.fact_sales`, `gold.dim_customers` and `gold.dim_products`, and run the six sections individually. They cover schema discovery, dimensions, dates, measures, category comparisons, and customer and product rankings.
+Open [EDA.sql](script/EDA.sql) in SSMS, select the database containing `gold.fact_sales`, `gold.dim_customers` and `gold.dim_products`, and run the six sections individually.
 
 A few details matter when interpreting the original queries:
 
