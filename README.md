@@ -46,7 +46,9 @@ Schema references were compared with the companion Gold view definitions. A port
 
 Run `python tests/check_logic.py` from the repository root. It translates selected T-SQL syntax to SQLite for logic checks; it does **not** validate native SQL Server execution, SQL Server decimal precision, or actual source results.
 
-Native SQL Server execution and dataset-derived findings remain pending. See [the guide](docs/analysis-guide.md) for the evidence to capture.
+The three supplied Gold CSV exports reconcile to **60,398 sales rows, 27,659 distinct orders, 60,423 units and 29,356,250 in recorded sales amount**. Currency is unspecified. All 18,484 customer keys and 295 product keys in the dimensions are unique. Every sales row matches exactly one customer and one product. Sales cover 130 catalog products, leaving 165 with no recorded sales.
+
+Monthly reporting excludes 19 rows without an order date. Those rows account for 4,992 in sales, so dated sales reconcile to 29,351,258. The exports use two-digit years. Use typed SQL Server dates for age analysis. These checks used the CSV snapshot. Native SQL Server execution of the repository scripts remains pending. See [the guide](docs/analysis-guide.md).
 
 ## Scope
 
